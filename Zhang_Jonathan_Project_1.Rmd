@@ -1,0 +1,106 @@
+---
+title: "Project1"
+author: "Jonathan Zhang"
+date: "September 22, 2018"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+```
+
+1. DATA: chickwts
+
+Figure:
+
+```{r}
+data1 = as.tibble(chickwts)
+
+ggplot(data = data1) + 
+  geom_boxplot(mapping = aes(x = reorder(feed, weight, FUN = median), y = weight)) +
+  xlab("Feed Supplement Type") +
+  ylab("Weight After Six Weeks (in grams)") +
+  labs("Weight of Chicks by Feed Type") +
+  coord_flip()
+```
+```{r}
+data1 %>%
+  summarise(median(weight))
+data1 %>%
+  group_by(feed) %>%
+  summarise(median(weight))
+```
+
+Results: The data was acquired from the dataset chickwts already provided by R, which was from "Anonymous (1948) Biometrika, 35, 214.". This data looked at the weight of 71 chicks in grams six weeks after birth after being given a certain type of feed. The median weight for all the chicks was 258 grams, but as we can see not all the feed types produced chicks with weights around 258 grams. The chicks that were feed casein gained the most weight at a median value of 342 grams, and the chicks that were feed horsebean gained the least weight at 152 grams. It is interesting to note that the feed type sunflower (with a median of 328 grams) has only as slightly lower median than casein, but the data was much more consistent (since the box is much smaller) even though there are 3 outliers. We could further conduct another experiment with more chicks to see if sunflower is overall the more consistent feed type to help chicks gain weight.
+
+2. DATA: ToothGrowth
+
+Figure:
+```{r}
+data2 = as.tibble(ToothGrowth)
+
+ggplot(data = data2, mapping = aes(x = len, y = ..density..)) +
+  geom_freqpoly(mapping = aes(color = as.factor(dose), linetype = as.factor(supp)), binwidth = 4) +
+  xlab("Length of Odontoblasts (Relative length to one another)") +
+  ylab("Number of Guinea Pigs (Proportion to Total)") +
+  ggtitle("Length of Teeth in Guinea Pigs by Vitamin C Dosage and Vitamin C Supplement Type") +
+  labs(color = "Vitamin C Dosage in mg/day", linetype = "Supplement Type")
+```
+```{r}
+data2 %>%
+  summarise(mean(len))
+data2 %>%
+  group_by(supp, dose) %>%
+  summarise(mean(len))
+```
+
+Results: The data was acquired from the dataset ToothGrowth already provided by R, which was from "C. I. Bliss (1952). The Statistics of Bioassay. Academic Press.". This data recorded the length of odontoblasts (relative length) in 60 guinea pigs after being given a vitamin C supplement of VC (ascorbic acid) or OJ (orange juice) with a dose of 0.5, 1, or 2 mg/day. The average length of tooth growth for the whole dataset is 18.8, but tooth growth varies between groups. From the plot, you can see that the tooth lengths of guinea pigs that were given a higher dosage of Vitamin C were usually higher than those that were given a lower dosage. The only exception to this is that the group that received OJ at a dosage level of 1mg/day performed almost as well as the groups that received 2mg/day. Additionally, the groups that received OJ performed better than their respective dosage group that received VC, except for those that received 2mg/day. This might be indicative that either OJ is absorbed more efficiently at lower dosages or that VC is asorbed better at higher dosages. We can further investigate this interaction by doing another experiment with more dosage groups and more guinea pigs.
+
+3. DATA: airquality
+
+Figure:
+```{r}
+data3 = airquality
+ggplot(data = data3) +
+  geom_bin2d(mapping = aes(x=Solar.R, y = Temp), bins = 10, na.rm = TRUE) +
+  xlab("Solar Radiation in Langleys") +
+  ylab("Maximum Daily Temperature in F") +
+  ggtitle("Solar Radiation and Maximum Daily Temperature in New York from May 1, 1973 to Septemeber 30, 1973") +
+  labs(color = "Number of Days")
+```
+```{r}
+data3 %>%
+  summarise(mean(Solar.R, na.rm = TRUE))
+data3 %>%
+  summarise(mean(Temp, na.rm = TRUE))
+```
+
+Results: The data was acquired from the dataset airquality already provided by R, which was from the New York State Department of Conservation (ozone data) and the National Weather Service (meteorological data). The data recorded many variables related to air quality from May 1, 1973 to September 30, 1973. The ones that we are concerned with in this visualization is the solar radiation data measured in Langleys and the temperature data measured in Fahrenheit. We see that the data only measured data in the summer, so the results can only be applied to days in the summer. The average temperature was 77.88 degrees and the average solar radiation was 185.93 Langleys. From the plot we can see some general trends such as the temperature is never high (> 85) when the solar radiation is low (< 50) and that temperature is rarely low (< 65) when solar radiation is high (> 250). Additionally, we can see the most common summer days in New York had solar radiation around 250 Langelys and a temperature around 80 degrees. For futher data collection, it could be interesting to see if the trends differ in the in winter compared to the summer, and also see if the trends are different in 2018 compared to data from over 40 years ago.
+
+4. DATA: Seatbelts
+
+Figure :
+```{r}
+data4 = as.tibble(Seatbelts)
+ggplot(data = data4, mapping = aes(x = front, y = rear)) + 
+  geom_point(mapping = aes(color = as.factor(law))) + 
+  geom_smooth(data = filter(data4, law == 1), method = "loess", formula = y ~ x) + 
+  geom_smooth(data = filter(data4, law == 0), method = "loess", formula = y ~ x) +
+  xlab("Front Seat Deaths") +
+  ylab("Back Seat Deaths") +
+  ggtitle("Front and Back Seat Deaths per Month by Compulsory Seatbelt Law") +
+  labs(color = "Compulsory Seatbelt \nLaw in Effect?") +
+  scale_color_hue(labels = c("No","Yes"))
+```
+```{r}
+data4 %>%
+  filter(law == 1) %>%
+  summarise(mean(front),
+            mean(rear))
+data4 %>%
+  filter(law == 0) %>%
+  summarise(mean(front),
+            mean(rear))
+```
+
+Results: This data was acquired from the dataset Seatbelts already provided by R, which was from "Harvey, A.C. (1989). Forecasting, Structural Time Series Models and the Kalman Filter. Cambridge University Press, pp. 519–523." and "Durbin, J. and Koopman, S. J. (2001). Time Series Analysis by State Space Methods. Oxford University Press." The data recorded the number of car accident deaths in the UK from January 1969 to December 1984. A Compulsory seatbelt law was introduced during this time range. During the time that the law was not in effect, the average number of front seat deaths per month was 873 and the average number of rear seat deaths per month was 400 Looking at the plot, there is a clear positive relationship between these two variables and that would make logical sense as more front deaths would mean more accidents which would mean more rear deaths. During the time that the law was in effect, the average number of front seat deaths per month was 571 and the average number of rear deaths per month was 400. There is a similar positve relationship between these two variables. It is interesting to note that this seatbelt law did not lower both the number of front seat deaths and back seat deaths. The plot shows that the only the front seat deaths were reduced. This could be the result of drivers obeying the law more often than a back seat passenger would. It would be interesting to see if the statistics would change after a campaign that emphasized the importance of rear seat seatbelt usage.
